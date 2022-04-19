@@ -1,0 +1,30 @@
+{
+  "manifest_version": 2,
+  "version": "1.2",
+  "name": "Nuaq",
+  "description": "Restaff Tool",
+  "permissions": [
+    "storage",
+    "<all_urls>",
+    "webRequest",
+    "webRequestBlocking",
+    "contextMenus"
+  ],
+  "icons": {
+    "16": "assets/img/icons/disabled/16.png",
+    "19": "assets/img/icons/disabled/19.png",
+    "32": "assets/img/icons/disabled/32.png",
+    "38": "assets/img/icons/disabled/38.png",
+    "48": "assets/img/icons/disabled/48.png",
+    "64": "assets/img/icons/disabled/64.png"
+  },
+  "browser_action": {
+    "default_popup": "index.html"
+  },
+  "background": {
+    "persistent": true,
+    "scripts": [
+      "background.js"
+    ]
+  }
+}

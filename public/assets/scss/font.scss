@@ -1,0 +1,60 @@
+@font-face {
+  font-family: 'fabric';
+  src:
+    url('../fonts/icons/fabric-mdl2-external.ttf') format('truetype'),
+    url('../fonts/icons/fabric-mdl2-external.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: "Segoe UI";
+  src: local("Segoe UI"),
+    url(../fonts/segoeui/segoeui.ttf) format("truetype");
+}
+
+@font-face {
+  font-family: "Roboto", sans-serif;
+  src: url(https://fonts.googleapis.com/css2?family=Roboto:wght@100;300&family=Yusei+Magic&display=swap) format("truetype");
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  font-family: 'fabric' !important;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-birthday:before {
+  content: "\EF8D";
+}
+.icon-phone:before {
+  content: "\E717";
+}
+.icon-join:before {
+  content: "\E8D1";
+}
+.icon-email:before {
+  content: "\EF6F";
+}
+.icon-email-private:before {
+  content: "\F67A";
+}
+.icon-charac:before {
+  content: "\EBF7";
+}
+.icon-address:before {
+  content: "\E80F";
+}
+.icon-claim:before {
+  content: "\F314";
+}
+.icon-timer:before {
+  content: "\E91E";
+}
