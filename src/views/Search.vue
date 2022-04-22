@@ -6,6 +6,7 @@
         :disabled="!isLoadedUser"
         :loading="!isLoadedUser"
         placeholder="Search for users (no login required)"
+        v-model="searchKey"
         @change="onSearch"
       />
     </div>
@@ -19,12 +20,15 @@
           </a-popover>
           <a-icon v-else class="fs-18" type="sync" spin style="color: #F6F6F6" />
         </div>
-        <div class="sortby">
-          <span>Sort by: </span>
-          <a-select default-value="joinedDate" style="width: 120px" @change="handleChange" >
-            <a-select-option value="team"> Team </a-select-option>
-            <a-select-option value="fullName"> Name </a-select-option>
-            <a-select-option value="joinedDate"> Joined Date </a-select-option>
+        <div class="sortAndFilter">
+          <a-select v-model="sortAndFilter" style="width: 120px" @change="handleChange" >
+            <a-select-opt-group label="Sort by">
+              <a-select-option v-for="item in sortBy" :key="item.name" :value="item.name">{{item.label}}</a-select-option>
+            </a-select-opt-group>
+            <a-select-opt-group label="Filter">
+              <a-select-option value="leaveToday">Leave Today</a-select-option>
+              <a-select-option value="unknownTeam">Unknown Team</a-select-option>
+            </a-select-opt-group>
           </a-select>
         </div>
         <div class="order">
@@ -38,7 +42,7 @@
         <template #expandIcon="props">
           <a-icon type="caret-right" :rotate="props.isActive ? 90 : 0" />
         </template>
-        <a-collapse-panel v-for="(item, index) in usersSearch" :key="index" >
+        <a-collapse-panel v-for="(item) in usersSearch" :key="item.employeeId" >
           <template slot="header" >
             <div class="item" @click="onCollapse(item.employeeId)">
               <a-popover overlayClassName="popover-custom" placement="right">
@@ -47,7 +51,7 @@
                   <img v-else class="image-popover" :src="getAvatar(item.avatarUrl)" />
                 </template>
                 <img v-if="item.employeeId === getAdminId()" class="image" :src="item.avatarUrl" />
-                <img v-else class="image" :src="getAvatar(item.avatarUrl)" />
+                <img v-else class="image" v-lazy="getAvatar(item.avatarUrl)" />
               </a-popover>
               <div class="bio">
                 <div class="m-left-25" style="width: 190px">
@@ -70,7 +74,7 @@
                   <span></span>
                   <span></span>
                   <div class="content-img">
-                    <img class="image" style="border: 1px solid #E5E4E2;" :src="item.avatarUrl" />
+                    <img class="image" style="border: 1px solid #E5E4E2;" v-lazy="item.avatarUrl" />
                   </div>
                 </div>
               </div>
@@ -143,8 +147,14 @@ export default {
   data() {
     return {
       isOrdered: true,
-      sortBy: 'joinedDate',
+      isFiltered: false,
+      sortAndFilter: 'joinedDate',
       users: [],
+      sortBy: [
+        { name: 'joinedDate', label: 'Joined Date' },
+        { name: 'team', label: 'Team' },
+        { name: 'fullName', label: 'Name' },
+      ],
       detail: {
         address: 'unknown',
         dateOfBirth: 'unknown',
@@ -156,16 +166,15 @@ export default {
       },
       total: 0,
       usersSearch: [],
+      searchKey: '',
       isLoadedUser: false,
       isRefreshSearch: false,
       headers: {}
     };
   },
   watch: {
-    sortBy() {
-      this.onSort()
-    },
     isOrdered() {
+      if (this.isFiltered) { this.sortAndFilter = 'joinedDate' }
       this.onSort()
     },
     tokenFreeStore(val) {
@@ -223,14 +232,13 @@ export default {
           }
         })
         this.isLoadedUser = true
-        console.log('userDatas', userDatas)
         const userDatas = userAll.filter(item => !!item.employeeId)
         this.users = userDatas
         this.usersSearch = userDatas
         this.total = userDatas.length
         this.onSort()
       } catch (error) {
-        console.log(error)
+        throw new Error(error)
       } finally {
         setTimeout(() => {
           this.isRefreshSearch = false
@@ -263,9 +271,10 @@ export default {
       }
     },
     onSearch: _.debounce(function(e) {
-      const keyword = e.target.value
-      if (keyword) {
-        const text = keyword.toLowerCase();
+      this.searchKey = e.target.value
+      if (this.searchKey) {
+        if (this.isFiltered) { this.sortAndFilter = 'joinedDate' }
+        const text = this.searchKey.toLowerCase();
         const checkInclude = (val) => val ? val.toLowerCase().includes(text) : false
         this.usersSearch = this.users.filter(item => checkInclude(item.fullName) || checkInclude(item.team));
       } else {
@@ -277,12 +286,34 @@ export default {
     onSort() {
       let order = 'asc'
       if (this.isOrdered) {
-        if (this.sortBy === 'joinedDate') { order = 'desc' } else { order = 'asc' }
-      } else { if (this.sortBy === 'joinedDate') { order = 'asc' } else { order = 'desc' } }
-      this.usersSearch = _.orderBy(this.usersSearch, [this.sortBy], [order]);
+        if (this.sortAndFilter === 'joinedDate') { order = 'desc' } else { order = 'asc' }
+      } else { if (this.sortAndFilter === 'joinedDate') { order = 'asc' } else { order = 'desc' } }
+      if (this.isFiltered) {
+        this.usersSearch = _.orderBy(this.users, [this.sortAndFilter], [order]);
+        this.isFiltered = false
+      } else {
+        this.usersSearch = _.orderBy(this.usersSearch, [this.sortAndFilter], [order]);
+      }
+      this.total = this.usersSearch.length
+    },
+    onFilter(value) {
+      this.isFiltered = true
+      this.searchKey = ''
+      const condition = (item) => {
+        return value === 'leaveToday' ? !!item.hasLeaveToday : item.team === 'Unknown'
+      }
+      this.usersSearch = this.users.filter(condition)
+      this.total = this.usersSearch.length
     },
     handleChange(value) {
-      this.sortBy = value
+      this.sortAndFilter = value
+      const isSort = this.sortBy.find(item => item.name === this.sortAndFilter)
+      if (isSort) {
+        this.onSort()
+      } else {
+        this.onFilter(this.sortAndFilter)
+      }
+
     },
     getJoineddate(joindate) {
       const diff = this.dateDiff(joindate, moment());
