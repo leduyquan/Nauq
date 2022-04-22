@@ -49,7 +49,7 @@
             </div>
           </template>
           <div class="d-flex justify-content-end p-right-20">
-            <img v-if="item.contentHtml" style="height: 100px" :src="domain + '/cdn/file/' + item.contentHtml" />
+            <img v-if="item.contentHtml" style="height: 100px" v-lazy="domain + '/cdn/file/' + item.contentHtml" />
           </div>
           <div :id="'detailPost-' + index"></div>
         </a-collapse-panel>

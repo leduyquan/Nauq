@@ -107,7 +107,6 @@
 </template>
 <script>
 import axios from "axios";
-import _ from "lodash";
 import moment from 'moment'
 import { mapState, mapActions } from 'vuex'
 export default {
