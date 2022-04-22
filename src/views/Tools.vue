@@ -179,7 +179,6 @@ export default {
         } else {
           const sts = this.claimStatus.find(x => x.value === this.claimStatusSelected)
           this.claimNote = `You're ${sts.name.toLowerCase()} today`
-
         }
       }
     },

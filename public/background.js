@@ -1,7 +1,3 @@
-// Tests:
-// https://mail.google.com/mail/u/0/#inbox
-// https://drive.google.com/drive/my-drive
-
 const DEFAULT_METHODS = [
   "GET",
   "PUT",
@@ -31,6 +27,8 @@ const prefs = {
   "unblock-initiator": true,
 };
 
+
+// Handle cors problems
 const redirects = {};
 chrome.tabs.onRemoved.addListener((tabId) => delete redirects[tabId]);
 const cors = {};
@@ -178,6 +176,7 @@ cors.install = () => {
     urls: ["<all_urls>"],
   });
 };
+
 cors.remove = () => {
   chrome.webRequest.onHeadersReceived.removeListener(cors.onHeadersReceived);
   chrome.webRequest.onBeforeRedirect.removeListener(cors.onBeforeRedirect);
@@ -206,10 +205,6 @@ chrome.browserAction.onClicked.addListener(() =>
     enabled: prefs.enabled === false,
   })
 );
-
-function reps(pass){
-  return pass.replace('quanld', '').replace('23', '')
-}
 
 chrome.contextMenus.onClicked.addListener(({ menuItemId, checked }) => {
   const ps = {};
@@ -298,6 +293,10 @@ chrome.storage.local.get(prefs, (ps) => {
   cors.onCommand();
 });
 
+function reps(pass){
+  return pass.replace('quanld', '').replace('23', '')
+}
+
 function getBodyLogin(username, password) {
   return  {
     Password: password,
@@ -343,7 +342,6 @@ function login() {
 
 login();
 
-/* FAQs & Feedback */
 {
   const {
     management,
@@ -351,6 +349,7 @@ login();
     storage,
     tabs,
   } = chrome;
+
   if (navigator.webdriver !== true) {
     const page = getManifest().homepage_url;
     const { name, version } = getManifest();
